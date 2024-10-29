@@ -9,8 +9,7 @@ public class Reservation
     public required bool QuickPickUp { get; set; }
     public required decimal TotalCost { get; set; }
     public required DateTime ReservationDate { get; set; }
-
+    
     public required string UserId { get; set; }
-
     public ReservationDto ToDto() => new ReservationDto(Id, BookId, Days, QuickPickUp, TotalCost, ReservationDate);
 }

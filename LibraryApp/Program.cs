@@ -9,7 +9,6 @@ builder.Services.AddDbContext<LibraryDbContext>(options =>
 
 var app = builder.Build();
 
-// Seed data on application startup
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
@@ -24,10 +23,66 @@ booksGroup.MapGet("/books", async (LibraryDbContext dbContext) =>
     return Results.Ok(books);
 });
 
-booksGroup.MapGet("/books/{id}", (int id) => {});
-booksGroup.MapPost("/books", (CreateBookDto dto) => "POST");
-booksGroup.MapPut("/books/{id}", (int id, UpdateBookDto dto) => "PUT");
-booksGroup.MapDelete("/books/{id}", (int id) => "DELETE");
+booksGroup.MapGet("/books/{id}", async(int id, LibraryDbContext dbContext) =>
+{
+    var book = await dbContext.Books.FindAsync(id);
+    return book == null ? Results.NotFound() : TypedResults.Ok(book.ToDto());
+});
+
+var reservationsGroup = app.MapGroup("/api");
+
+reservationsGroup.MapGet("/reservations", async (LibraryDbContext dbContext) =>
+{
+    var reservations = await dbContext.Reservations.Select(r => r.ToDto()).ToListAsync();
+    return Results.Ok(reservations);
+});
+
+reservationsGroup.MapGet("/reservations/{id}", async(int id, LibraryDbContext dbContext) =>
+{
+    var reservation = await dbContext.Reservations.FindAsync(id);
+    return reservation == null ? Results.NotFound() : TypedResults.Ok(reservation.ToDto());
+});
+
+
+// booksGroup.MapPost("/books", async(CreateBookDto dto, LibraryDbContext dbContext) =>
+// {
+//     var book = new Book { Name = dto.Name, Year = dto.Year, Picture = dto.Picture, Type = BookType.Book };
+//     dbContext.Books.Add(book);
+//     await dbContext.SaveChangesAsync();
+//     
+//     return TypedResults.Created($"/api/books/{book.Id}", book.ToDto());
+// });
+// booksGroup.MapPut("/books/{id}", async(int id, UpdateBookDto dto, LibraryDbContext dbContext) =>
+// {
+//     var book = await dbContext.Books.FindAsync(id);
+//     if(book == null)
+//     {
+//         return Results.NotFound();
+//     }
+//     book.Name = dto.Name;
+//     book.Year = dto.Year;
+//     book.Picture = dto.Picture;
+//     
+//     dbContext.Books.Update(book);
+//     await dbContext.SaveChangesAsync();
+//
+//     return TypedResults.Ok(book.ToDto());
+// });
+//
+// booksGroup.MapDelete("/books/{id}", async(int id, LibraryDbContext dbContext) =>
+// {
+//     var book = await dbContext.Books.FindAsync(id);
+//     if(book == null)
+//     {
+//         return Results.NotFound();
+//     }
+//     dbContext.Books.Remove(book);
+//     await dbContext.SaveChangesAsync();
+//     
+//     return TypedResults.NoContent();
+// });
+
+
 
 app.Run();
 
