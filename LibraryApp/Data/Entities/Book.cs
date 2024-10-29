@@ -3,10 +3,21 @@ namespace LibraryApp.Data.Entities;
 public class Book
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public int Year { get; set; }
-    public string Picture { get; set; }
+    public required string Name { get; set; }
+    public required int Year { get; set; }
+    public required string Picture { get; set; }
+    public required BookType Type { get; set; }
+    
+    public BookDto ToDto() => new BookDto(Id, Name, Year, Picture, Type);
 }
+
+public enum BookType
+{
+    Book,
+    Audiobook
+}
+
+
 
 
 
