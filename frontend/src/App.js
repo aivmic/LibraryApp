@@ -9,8 +9,18 @@ function App() {
       <div className="min-h-screen bg-gray-100 p-6">
         <header className="mb-6">
           <nav className="flex space-x-4">
-            <Link to="/" className="text-blue-500 hover:text-blue-700">Book List</Link>
-            <Link to="/reservations" className="text-blue-500 hover:text-blue-700">My Reservations</Link>
+            <Link
+              to="/"
+              className="inline-block px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors"
+            >
+              Book List
+            </Link>
+            <Link
+              to="/reservations"
+              className="inline-block px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors"
+            >
+              My Reservations
+            </Link>
           </nav>
         </header>
         <main>

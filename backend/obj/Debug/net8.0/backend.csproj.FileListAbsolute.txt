@@ -137,3 +137,4 @@ C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\FluentValidati
 C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
 C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\SharpGrip.FluentValidation.AutoValidation.Endpoints.dll
 C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\SharpGrip.FluentValidation.AutoValidation.Shared.dll
+C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\backend.staticwebassets.runtime.json

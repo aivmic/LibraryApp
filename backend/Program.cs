@@ -11,16 +11,21 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy => policy.WithOrigins("http://localhost:3000") // React app URL
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+    options.AddPolicy("AllowAllOrigins",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
 });
 
 builder.Services.AddDbContext<LibraryDbContext>(options =>
     options.UseInMemoryDatabase("LibraryDb"));
+
 
 builder.Services.AddScoped<ReservationService>();
 
@@ -29,10 +34,14 @@ builder.Services.AddFluentValidationAutoValidation(configuration =>
 {
     configuration.OverrideDefaultResultFactoryWith<ProblemDetailsResultFactory>();
 });
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
-app.UseCors("AllowReactApp");
+// Enable serving static files
+app.UseStaticFiles();
+
+app.UseCors("AllowAllOrigins");
 
 using (var scope = app.Services.CreateScope())
 {
@@ -50,18 +59,14 @@ void SeedDatabase(LibraryDbContext dbContext)
     if (!dbContext.Books.Any())
     {
         dbContext.Books.AddRange(
-            new Book { Id = 1, Name = "The Great Gatsby", Year = 1925, Picture = "book1.jpg", Type = BookType.Book },
-            new Book { Id = 2, Name = "Moby-Dick", Year = 1851, Picture = "book2.jpg", Type = BookType.Book },
-            new Book { Id = 3, Name = "Frankenstein", Year = 1823, Picture = "audiobook1.jpg", Type = BookType.Audiobook },
-            new Book { Id = 4, Name = "Nineteen Eighty-Four", Year = 1949, Picture = "audiobook2.jpg", Type = BookType.Audiobook },
-            new Book { Id = 5, Name = "The Road", Year = 2006, Picture = "book3.jpg", Type = BookType.Book },
-            new Book { Id = 6, Name = "The Corrections", Year = 2001, Picture = "book4.jpg", Type = BookType.Book },
-            new Book { Id = 7, Name = "The Year of Magical Thinking", Year = 2005, Picture = "audiobook3.jpg", Type = BookType.Audiobook },
-            new Book { Id = 8, Name = "The Known World", Year = 2003, Picture = "audiobook4.jpg", Type = BookType.Audiobook },
-            new Book { Id = 9, Name = "The Great Gatsby", Year = 1925, Picture = "book1.jpg", Type = BookType.Audiobook },
-            new Book { Id = 10, Name = "Moby-Dick", Year = 1851, Picture = "book2.jpg", Type = BookType.Audiobook },
-            new Book { Id = 11, Name = "Frankenstein", Year = 1823, Picture = "audiobook1.jpg", Type = BookType.Book },
-            new Book { Id = 12, Name = "Nineteen Eighty-Four", Year = 1949, Picture = "audiobook2.jpg", Type = BookType.Book }
+            new Book { Id = 1, Name = "The Great Gatsby", Year = 1925, Picture = "/images/book1.jpg", Type = BookType.Book },
+            new Book { Id = 2, Name = "Moby-Dick", Year = 1851, Picture = "/images/book2.jpg", Type = BookType.Book },
+            new Book { Id = 3, Name = "Frankenstein", Year = 1823, Picture = "/images/audiobook1.jpg", Type = BookType.Audiobook },
+            new Book { Id = 4, Name = "Nineteen Eighty-Four", Year = 1949, Picture = "/images/audiobook2.jpg", Type = BookType.Audiobook },
+            new Book { Id = 5, Name = "The Road", Year = 2006, Picture = "/images/book3.jpg", Type = BookType.Book },
+            new Book { Id = 6, Name = "The Corrections", Year = 2001, Picture = "/images/book4.jpg", Type = BookType.Book },
+            new Book { Id = 7, Name = "The Year of Magical Thinking", Year = 2005, Picture = "/images/audiobook3.jpg", Type = BookType.Audiobook },
+            new Book { Id = 8, Name = "The Known World", Year = 2003, Picture = "/images/audiobook4.jpg", Type = BookType.Audiobook }
         );
         dbContext.SaveChanges();
     }
@@ -83,7 +88,8 @@ public class ProblemDetailsResultFactory : IFluentValidationAutoValidationResult
 
 public record BookDto(int Id, string Name, int Year, string Picture, BookType Type);
 public record ReservationDto(int Id, int BookId, int Days, bool QuickPickUp, decimal TotalCost, DateTime ReservationDate, DateTime ReturnDate);
-public record CreateReservationDto(int BookId, int Days, bool QuickPickup)
+
+public record CreateReservationDto(int BookId, int Days, bool QuickPickup, DateTime ReservationDate)
 {
     public class CreateReservationDtoValidator : AbstractValidator<CreateReservationDto>
     {
@@ -91,15 +97,23 @@ public record CreateReservationDto(int BookId, int Days, bool QuickPickup)
         {
             RuleFor(x => x.BookId)
                 .NotEmpty()
-                .GreaterThan(0);
-                
+                .GreaterThan(0)
+                .WithMessage("BookId must be a positive integer.");
+
             RuleFor(x => x.Days)
                 .NotEmpty()
                 .GreaterThanOrEqualTo(1)
                 .LessThanOrEqualTo(360)
                 .WithMessage("Days must be between 1 and 360.");
+
+            RuleFor(x => x.ReservationDate)
+                .NotEmpty()
+                .Must(date => date >= DateTime.UtcNow.Date)
+                .WithMessage("Reservation date must be today or in the future.");
         }
     }
 }
+
+
 
 

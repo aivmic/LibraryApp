@@ -1,4 +1,3 @@
-// BookList.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import ReservationModal from './ReservationModal';
@@ -12,8 +11,6 @@ function BookList() {
     const [filterType, setFilterType] = useState('All');
     const [selectedBook, setSelectedBook] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-
 
     const fetchBooks = useCallback(async () => {
         try {
@@ -33,8 +30,6 @@ function BookList() {
         fetchBooks();
     }, [fetchBooks]);
 
-
-
     const handleReservationClick = (book) => {
         setSelectedBook(book);
         setIsModalOpen(true);
@@ -48,9 +43,10 @@ function BookList() {
     const handleReservationSubmit = async (reservationDetails) => {
         try {
             await axios.post(`${BASE_URL}/reservations`, {
-                bookId: reservationDetails.bookId,
-                days: reservationDetails.days,
-                quickPickup: reservationDetails.quickPickup,
+                BookId: reservationDetails.bookId,
+                Days: reservationDetails.days,
+                QuickPickup: reservationDetails.quickPickup,
+                ReservationDate: reservationDetails.startDate,
             });
             closeModal();
         } catch (error) {
@@ -73,7 +69,7 @@ function BookList() {
                 <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-400"
+                    className="w-full md:w-1/12 px-2 py-1 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-400"
                 >
                     <option value="All">All Types</option>
                     <option value="Book">Book</option>
@@ -82,21 +78,28 @@ function BookList() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {books.map((book) => (
-                    <div key={book.id} className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                        <img src={book.picture} alt={book.name} className="w-full h-48 object-cover" />
-                        <div className="p-4">
-                            <h2 className="text-xl font-semibold text-gray-800">{book.name}</h2>
-                            <p className="text-gray-500">Year: {book.year}</p>
-                            <button
-                                onClick={() => handleReservationClick(book)}
-                                className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300"
-                            >
-                                Reserve
-                            </button>
+                {books.map((book) => {
+                    const fullImageUrl = `${BASE_URL.replace('/api', '')}${book.picture}`; // image url format
+                    return (
+                        <div key={book.id} className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                            <img
+                                src={fullImageUrl}
+                                alt={`Cover of ${book.name}`}
+                                className="w-full h-85 object-cover"
+                            />
+                            <div className="p-4">
+                                <h2 className="text-xl font-semibold text-gray-800">{book.name}</h2>
+                                <p className="text-gray-500">Year: {book.year}</p>
+                                <button
+                                    onClick={() => handleReservationClick(book)}
+                                    className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+                                >
+                                    Reserve
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {isModalOpen && selectedBook && (

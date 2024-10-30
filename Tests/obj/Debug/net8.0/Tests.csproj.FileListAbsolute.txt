@@ -127,3 +127,4 @@ C:\Users\Aivaras\Desktop\code\LibraryApp\Tests\obj\Debug\net8.0\refint\Tests.dll
 C:\Users\Aivaras\Desktop\code\LibraryApp\Tests\obj\Debug\net8.0\Tests.pdb
 C:\Users\Aivaras\Desktop\code\LibraryApp\Tests\obj\Debug\net8.0\Tests.genruntimeconfig.cache
 C:\Users\Aivaras\Desktop\code\LibraryApp\Tests\obj\Debug\net8.0\ref\Tests.dll
+C:\Users\Aivaras\Desktop\code\LibraryApp\Tests\bin\Debug\net8.0\backend.staticwebassets.runtime.json

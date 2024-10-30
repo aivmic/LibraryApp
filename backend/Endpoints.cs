@@ -47,36 +47,52 @@ public static class Endpoints
             return Results.Ok(reservations);
         });
 
-        reservationsGroup.MapGet("/reservations/{id}", async(int id, LibraryDbContext dbContext) =>
+        reservationsGroup.MapGet("/reservations/{id}", async (int id, LibraryDbContext dbContext) =>
         {
             var reservation = await dbContext.Reservations.FindAsync(id);
             return reservation == null ? Results.NotFound() : TypedResults.Ok(reservation.ToDto());
         });
 
-        reservationsGroup.MapPost("/reservations", async (CreateReservationDto request, LibraryDbContext dbContext, ReservationService reservationService) =>
-        {
-            var book = await dbContext.Books.FindAsync(request.BookId);
-            if (book == null)
+        reservationsGroup.MapPost("/reservations",
+            async (CreateReservationDto request, LibraryDbContext dbContext, ReservationService reservationService) =>
             {
-                return Results.NotFound("Book not found.");
-            }
-            decimal totalCost = reservationService.CalculateCost(book.Type, request.Days, request.QuickPickup);
-    
-            var reservation = new Reservation
-            {
-                BookId = request.BookId,
-                Days = request.Days,
-                QuickPickup = request.QuickPickup,
-                TotalCost = totalCost,
-                ReturnDate = DateTime.UtcNow.AddDays(request.Days),
-                Book = book
-            };
+                var book = await dbContext.Books.FindAsync(request.BookId);
+                if (book == null)
+                {
+                    return Results.NotFound("Book not found.");
+                }
 
-            dbContext.Reservations.Add(reservation);
+                decimal totalCost = reservationService.CalculateCost(book.Type, request.Days, request.QuickPickup);
+
+                var reservation = new Reservation
+                {
+                    BookId = request.BookId,
+                    Days = request.Days,
+                    QuickPickup = request.QuickPickup,
+                    TotalCost = totalCost,
+                    ReservationDate = request.ReservationDate,
+                    ReturnDate = request.ReservationDate.AddDays(request.Days),
+                    Book = book
+                };
+
+                dbContext.Reservations.Add(reservation);
+                await dbContext.SaveChangesAsync();
+
+                return Results.Created($"/reservations/{reservation.Id}", reservation);
+            });
+
+        reservationsGroup.MapDelete("/reservations/{id}", async (int id, LibraryDbContext dbContext) =>
+        {
+            var reservation = await dbContext.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return Results.NotFound("Reservation not found.");
+            }
+
+            dbContext.Reservations.Remove(reservation);
             await dbContext.SaveChangesAsync();
 
-            return Results.Created($"/reservations/{reservation.Id}", reservation);
-        }); 
+            return Results.NoContent();
+        });
     }
-    
 }
