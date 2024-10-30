@@ -1,3 +1,6 @@
+How to run:
+-----------
+
 git pull {project link}
 
 -----------
