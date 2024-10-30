@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "gvvnLfNcODs=",
+  "dgSpecHash": "pwBXNSE19u4=",
   "success": true,
   "projectFilePath": "C:\\Users\\Aivaras\\Desktop\\code\\LibraryApp\\backend\\backend.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Aivaras\\.nuget\\packages\\fluentvalidation\\11.10.0\\fluentvalidation.11.10.0.nupkg.sha512",
+    "C:\\Users\\Aivaras\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.10.0\\fluentvalidation.dependencyinjectionextensions.11.10.0.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.8\\microsoft.aspnetcore.openapi.8.0.8.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
@@ -35,6 +37,8 @@
     "C:\\Users\\Aivaras\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.0-rc.2.24473.5\\microsoft.extensions.primitives.9.0.0-rc.2.24473.5.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
+    "C:\\Users\\Aivaras\\.nuget\\packages\\sharpgrip.fluentvalidation.autovalidation.endpoints\\1.4.0\\sharpgrip.fluentvalidation.autovalidation.endpoints.1.4.0.nupkg.sha512",
+    "C:\\Users\\Aivaras\\.nuget\\packages\\sharpgrip.fluentvalidation.autovalidation.shared\\1.4.0\\sharpgrip.fluentvalidation.autovalidation.shared.1.4.0.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\swashbuckle.aspnetcore\\6.4.0\\swashbuckle.aspnetcore.6.4.0.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.4.0\\swashbuckle.aspnetcore.swagger.6.4.0.nupkg.sha512",
     "C:\\Users\\Aivaras\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.4.0\\swashbuckle.aspnetcore.swaggergen.6.4.0.nupkg.sha512",

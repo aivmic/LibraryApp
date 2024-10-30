@@ -9,7 +9,6 @@ public class Reservation
     public required decimal TotalCost { get; set; }
     public DateTime ReservationDate { get; set; } = DateTime.UtcNow;
     public required DateTime ReturnDate { get; set; }   
-    
     public Book Book { get; set; } = null!;
     public ReservationDto ToDto() => new ReservationDto(Id, BookId, Days, QuickPickup, TotalCost, ReservationDate, ReturnDate);
 }

@@ -133,3 +133,7 @@ C:\Users\Aivaras\Desktop\code\LibraryApp\backend\obj\Debug\net8.0\refint\backend
 C:\Users\Aivaras\Desktop\code\LibraryApp\backend\obj\Debug\net8.0\backend.pdb
 C:\Users\Aivaras\Desktop\code\LibraryApp\backend\obj\Debug\net8.0\backend.genruntimeconfig.cache
 C:\Users\Aivaras\Desktop\code\LibraryApp\backend\obj\Debug\net8.0\ref\backend.dll
+C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\FluentValidation.dll
+C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\SharpGrip.FluentValidation.AutoValidation.Endpoints.dll
+C:\Users\Aivaras\Desktop\code\LibraryApp\backend\bin\Debug\net8.0\SharpGrip.FluentValidation.AutoValidation.Shared.dll

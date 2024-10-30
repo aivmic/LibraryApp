@@ -1,7 +1,12 @@
+using backend;
 using backend.Data;
 using backend.Data.Entities;
 using backend.Services;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using FluentValidation;
+using FluentValidation.Results;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Results;
+using SharpGrip.FluentValidation.AutoValidation.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
-        policy => policy.WithOrigins("http://localhost:3000") // Replace with your React app's URL if needed
+        policy => policy.WithOrigins("http://localhost:3000") // React app URL
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -18,6 +23,12 @@ builder.Services.AddDbContext<LibraryDbContext>(options =>
     options.UseInMemoryDatabase("LibraryDb"));
 
 builder.Services.AddScoped<ReservationService>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddFluentValidationAutoValidation(configuration =>
+{
+    configuration.OverrideDefaultResultFactoryWith<ProblemDetailsResultFactory>();
+});
 
 var app = builder.Build();
 
@@ -29,70 +40,8 @@ using (var scope = app.Services.CreateScope())
     SeedDatabase(dbContext);
 }
 
-var booksGroup = app.MapGroup("/api");
-
-booksGroup.MapGet("/books", async (LibraryDbContext dbContext, string? search = null, string? type = null) =>
-{
-    var query = dbContext.Books.AsQueryable();
-    
-    if (!string.IsNullOrWhiteSpace(search))
-    {
-            query = query.Where(b => b.Year.ToString().Contains(search) || b.Name.Contains(search) || b.Type.ToString().Contains(search)) ;
-    }
-    
-    if (!string.IsNullOrEmpty(type) && Enum.TryParse(type, true, out BookType explicitType))
-    {
-        query = query.Where(b => b.Type == explicitType);
-    }
-
-    var books = await query.Select(b => b.ToDto()).ToListAsync();
-    return Results.Ok(books);
-});
-
-booksGroup.MapGet("/books/{id}", async(int id, LibraryDbContext dbContext) =>
-{
-    var book = await dbContext.Books.FindAsync(id);
-    return book == null ? Results.NotFound() : TypedResults.Ok(book.ToDto());
-});
-
-var reservationsGroup = app.MapGroup("/api");
-
-reservationsGroup.MapGet("/reservations", async (LibraryDbContext dbContext) =>
-{
-    var reservations = await dbContext.Reservations.Select(r => r.ToDto()).ToListAsync();
-    return Results.Ok(reservations);
-});
-
-reservationsGroup.MapGet("/reservations/{id}", async(int id, LibraryDbContext dbContext) =>
-{
-    var reservation = await dbContext.Reservations.FindAsync(id);
-    return reservation == null ? Results.NotFound() : TypedResults.Ok(reservation.ToDto());
-});
-
-app.MapPost("/api/reservations", async (ReservationRequestDto request, LibraryDbContext dbContext, ReservationService reservationService) =>
-{
-    var book = await dbContext.Books.FindAsync(request.BookId);
-    if (book == null)
-    {
-        return Results.NotFound("Book not found.");
-    }
-    decimal totalCost = reservationService.CalculateCost(book.Type, request.Days, request.QuickPickup);
-    
-    var reservation = new Reservation
-    {
-        BookId = request.BookId,
-        Days = request.Days,
-        QuickPickup = request.QuickPickup,
-        TotalCost = totalCost,
-        ReturnDate = DateTime.UtcNow.AddDays(request.Days),
-        Book = book
-    };
-
-    dbContext.Reservations.Add(reservation);
-    await dbContext.SaveChangesAsync();
-
-    return Results.Created($"/api/reservations/{reservation.Id}", reservation);
-});
+app.AddBookApi();
+app.AddReservationApi();
 
 app.Run();
 
@@ -116,28 +65,41 @@ void SeedDatabase(LibraryDbContext dbContext)
         );
         dbContext.SaveChanges();
     }
+}
 
-    if (!dbContext.Reservations.Any())
+public class ProblemDetailsResultFactory : IFluentValidationAutoValidationResultFactory
+{
+    public IResult CreateResult(EndpointFilterInvocationContext context, ValidationResult validationResult)
     {
-        Reservation newReservation = new Reservation
-        {
-            Id = 1,
-            BookId = 5,
-            Days = 5,
-            QuickPickup = true,
-            TotalCost = 10, 
-            ReturnDate = DateTime.UtcNow.AddDays(5)
+        var problemDetails = new HttpValidationProblemDetails(validationResult.ToValidationProblemErrors())
+        { 
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Title = "Unprocessable Entity",
+            Status = 422,
         };
+        return TypedResults.Problem(problemDetails);
     }
 }
 
 public record BookDto(int Id, string Name, int Year, string Picture, BookType Type);
-
-public record CreateBookDto(string Name, int Year, string Picture);
-
-public record UpdateBookDto(string Name, int Year, string Picture);
-
 public record ReservationDto(int Id, int BookId, int Days, bool QuickPickUp, decimal TotalCost, DateTime ReservationDate, DateTime ReturnDate);
-public record CreateReservationDto(int BookId, int Days, bool QuickPickUp);
+public record CreateReservationDto(int BookId, int Days, bool QuickPickup)
+{
+    public class CreateReservationDtoValidator : AbstractValidator<CreateReservationDto>
+    {
+        public CreateReservationDtoValidator()
+        {
+            RuleFor(x => x.BookId)
+                .NotEmpty()
+                .GreaterThan(0);
+                
+            RuleFor(x => x.Days)
+                .NotEmpty()
+                .GreaterThanOrEqualTo(1)
+                .LessThanOrEqualTo(360)
+                .WithMessage("Days must be between 1 and 360.");
+        }
+    }
+}
 
-public record ReservationRequestDto(int BookId, int Days, bool QuickPickup);
+
