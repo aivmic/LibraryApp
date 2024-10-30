@@ -1,7 +1,7 @@
 How to run:
 -----------
 
-git pull {project link}
+git clone {project link}
 
 -----------
 
